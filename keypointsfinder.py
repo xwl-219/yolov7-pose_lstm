@@ -138,7 +138,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                     if len(output_data):  
                         for c in pose[:, 5].unique(): 
                             n = (pose[:, 5] == c).sum()  
-                            # print("No of Objects in Current Frame : {}".format(n))
+                            print("No of Objects in Current Frame : {}".format(n))
                         
                         for det_index, (*xyxy, conf, cls) in enumerate(reversed(pose[:,:6])): 
                             c = int(cls) 
@@ -199,7 +199,7 @@ def parse_opt():
                         help='path to video or 0 for webcam')
     parser.add_argument('--device', type=str, default='cpu',
                         help='cpu/0,1,2,3(gpu)')
-    parser.add_argument('--line_thickness', default = 3, help = 'Please Input the Value of Line Thickness')
+    parser.add_argument('--line_thickness', default = 6, help = 'Please Input the Value of Line Thickness')
 
     opt = parser.parse_args()
     return opt
