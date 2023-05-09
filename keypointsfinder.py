@@ -159,7 +159,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                             if len(sequence) == 30:
                                 keypoints.append(sequence)
                                 print(sequence)
-                               # print(keypoints)
+                                print(keypoints)
                             if j == seq:
                                 sequence = []
                                 j = 0
@@ -184,8 +184,6 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 out.write(img_img)
             else:
                 break
-        print('打印keypoint：')
-        print(keypoints)
         cap.release()
         avg_fps = total_fps / frame_count
         print(f"Average FPS: {avg_fps:.3f}")
