@@ -4,9 +4,8 @@ import cv2
 # To calculate the FPS
 import time
 
-
-#As YOLOv7 is built using PyTorch, To perform pose estimation using YOLOv7 we need to import the PyTorch module.
-#To use the PyTorch library we do, import torch
+# As YOLOv7 is built using PyTorch, To perform pose estimation using YOLOv7 we need to import the PyTorch module.
+# To use the PyTorch library we do, import torch
 # To check the version of the PyTorch library we do print(torch. __version__)
 
 import torch
@@ -16,7 +15,6 @@ import argparse
 
 # To convert the list into the numpy array we use the numpy library
 import numpy as np
-
 
 from utils.datasets import letterbox
 from utils.torch_utils import select_device
@@ -28,18 +26,18 @@ import tensorflow
 from PIL import ImageFont, ImageDraw, Image
 
 
-# Creating a load_classes function so we can load the coco.names file and after reading each of 
-#the name in coco.names file we can return the names in the form of a list
+# Creating a load_classes function so we can load the coco.names file and after reading each of
+# the name in coco.names file we can return the names in the form of a list
 def load_classes(path):
     # Loads *.names file at 'path'
     with open(path, 'r') as f:
         names = f.read().split('\n')
-    return list(filter(None, names)) 
+    return list(filter(None, names))
+
 
 # This is our Main Function
 @torch.no_grad()
-def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names = 'utils/coco.names', line_thickness = 2):
-
+def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names='utils/coco.names', line_thickness=2):
     path = source
     ext = path.split('/')[-1].split('.')[-1].strip().lower()
     if ext in ["mp4", "webm", "avi"] or ext not in ["mp4", "webm", "avi"] and ext.isnumeric():
@@ -85,17 +83,17 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
         # =============================================
         while cap.isOpened:
 
-           # print(f"Frame {frame_count} Processing")
+            # print(f"Frame {frame_count} Processing")
             ret, frame = cap.read()
             if ret:
                 origimage = frame
-                #Creating a Black Mask
-                mask=np.zeros(frame.shape[:2] , dtype="uint8") 
-                #Defining the ROI for the Player 2 only
-                roi = cv2.rectangle(mask, (0, 0), (1920, 1080),(255,255,255), -1)
-                #Overlapping the original image on the black mask
-                masked=cv2.bitwise_and(frame,frame,mask=mask)
-                masked[np.where((masked==[0,0,0]).all(axis=2))]=[255,0,0]
+                # Creating a Black Mask
+                mask = np.zeros(frame.shape[:2], dtype="uint8")
+                # Defining the ROI for the Player 2 only
+                roi = cv2.rectangle(mask, (0, 0), (1920, 1080), (255, 255, 255), -1)
+                # Overlapping the original image on the black mask
+                masked = cv2.bitwise_and(frame, frame, mask=mask)
+                masked[np.where((masked == [0, 0, 0]).all(axis=2))] = [255, 0, 0]
                 orig_image = masked
 
                 # preprocess image
@@ -119,7 +117,8 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 with torch.no_grad():
                     output, _ = model(image)
 
-                output_data = non_max_suppression_kpt(output, 0.25, 0.65, nc=model.yaml['nc'], nkpt=model.yaml['nkpt'], kpt_label=True)
+                output_data = non_max_suppression_kpt(output, 0.25, 0.65, nc=model.yaml['nc'], nkpt=model.yaml['nkpt'],
+                                                      kpt_label=True)
                 output = output_to_keypoint(output_data)
 
                 img_ = image_[0].permute(1, 2, 0) * 255
@@ -131,42 +130,42 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 img = img.cpu().numpy().astype(np.uint8)
 
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
- 
-                gn = torch.tensor(img.shape)[[1, 0, 1, 0]]    
-                for i, pose in enumerate(output_data):  
-                
-                    if len(output_data):  
-                        for c in pose[:, 5].unique(): 
-                            n = (pose[:, 5] == c).sum()  
-                            print("No of Objects in Current Frame : {}".format(n))
-                        
-                        for det_index, (*xyxy, conf, cls) in enumerate(reversed(pose[:,:6])): 
-                            c = int(cls) 
+
+                gn = torch.tensor(img.shape)[[1, 0, 1, 0]]
+                for i, pose in enumerate(output_data):
+
+                    if len(output_data):
+                        for c in pose[:, 5].unique():
+                            n = (pose[:, 5] == c).sum()
+                            # print("No of Objects in Current Frame : {}".format(n))
+
+                        for det_index, (*xyxy, conf, cls) in enumerate(reversed(pose[:, :6])):
+                            c = int(cls)
                             kpts = pose[det_index, 6:]
                             label = names[c]
-                            plot_one_box_kpt(xyxy, img_img, label=label, color=colors(c, True), 
-                                        line_thickness=opt.line_thickness, kpts=kpts, steps=3, 
-                                        orig_shape=img.shape[:2])                            
-                            # preprocess model input data and return the keypoints of the body =======
+                            # plot_one_box_kpt(xyxy, img_img, label=label, color=colors(c, True),
+                            #            line_thickness=opt.line_thickness, kpts=kpts, steps=3,
+                            #            orig_shape=img.shape[:2])
+                            ## preprocess model input data and return the keypoints of the body =======
                             if j <= seq:
                                 for idx in range(output.shape[0]):
                                     kpts = output[idx, 7:].T
-                                    plot_skeleton_kpts(img_img, kpts, 3)
+                                    # plot_skeleton_kpts(img_img, kpts, 3)
                                     sequence.append(kpts.tolist())
-                            #The keypoints predictions from the pose estimation model is stacked as
-                            #a sequence of 30 frames and each sequence contain 51 features 
+                            # The keypoints predictions from the pose estimation model is stacked as
+                            # a sequence of 30 frames and each sequence contain 51 features
                             # (X-coordinate, y-coordinate and the confidence score of 17 key points)
                             if len(sequence) == 30:
                                 keypoints.append(sequence)
                                 print(sequence)
-                                print(keypoints)
+                                # print(keypoints)
                             if j == seq:
                                 sequence = []
                                 j = 0
                             j += 1
 
                 if webcam:
-                    #cv2.imshow("Detection", img_img)
+                    # cv2.imshow("Detection", img_img)
                     key = cv2.waitKey(1)
                     if key == ord('c'):
                         break
@@ -174,7 +173,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                     img_ = img.copy()
                     img_ = cv2.resize(
                         img_, (960, 540), interpolation=cv2.INTER_LINEAR)
-                    #cv2.imshow("Detection", img_img)
+                    # cv2.imshow("Detection", img_img)
                     cv2.waitKey(1)
 
                 end_time = time.time()
@@ -182,11 +181,15 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 total_fps += fps
                 frame_count += 1
                 out.write(img_img)
+
             else:
                 break
+        print('finish')
+
         cap.release()
         avg_fps = total_fps / frame_count
         print(f"Average FPS: {avg_fps:.3f}")
+        print(keypoints.shape)
 
 
 def parse_opt():
@@ -197,7 +200,7 @@ def parse_opt():
                         help='path to video or 0 for webcam')
     parser.add_argument('--device', type=str, default='cpu',
                         help='cpu/0,1,2,3(gpu)')
-    parser.add_argument('--line_thickness', default = 6, help = 'Please Input the Value of Line Thickness')
+    parser.add_argument('--line_thickness', default=3, help='Please Input the Value of Line Thickness')
 
     opt = parser.parse_args()
     return opt
