@@ -77,7 +77,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
         # ===================================
 
         # ==4.0=== Load trained pose-indentification model======
-        tf_model = tensorflow.keras.models.load_model('mmodelfinal.h5')
+        tf_model = tensorflow.keras.models.load_model('final.h5')
         # ==================================================
 
         # == 5.0 == variable declaration===========
@@ -85,7 +85,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
         keypoints = []
         pose_name = ''
         posename_list = []
-        actions = np.array(['Smash-Shot', 'Drop-Shot'])
+        actions = np.array(['tick', 'throw'])
         label_map = {label: num for num, label in enumerate(actions)}
         j = 1
         seq = 30
@@ -130,7 +130,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 #Creating a Black Mask
                 mask2=np.zeros(frame.shape[:2] , dtype="uint8") 
                 #Setting the Region of Interest for the Player 1
-                roi = cv2.rectangle(mask2, (421, 321), (1493, 565),(255,255,255), -1)
+                roi = cv2.rectangle(mask2, (0, 0), (1920, 1080),(255,255,255), -1)
                 #Overlapping the Mask on the Original Image
                 masked2=cv2.bitwise_and(frame,frame,mask=mask2)
                 masked2[np.where((masked2==[0,0,0]).all(axis=2))]=[255,0,0]
@@ -242,13 +242,13 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                 yend = (fh-50)
                 # So After we have the shot name so here we are just setting the UI where we want to display the Shot names 
                 # = 7.0 == Draw prediction ==================================
-                if pose_name == "Smash-Shot":
+                if pose_name == "tick":
                     cv2.line(img_img2, ((width - (width-50)),25), ((width - (width-200)),25), [85,45,255], 40)
                     cv2.putText(img_img2, "Shot Type", ((width - (width-50)),35), 0, 1, [225, 255, 255], thickness=2, lineType=cv2.LINE_AA)
                     cv2.line(img_img2, ((width - (width-50)),75), ((width - (width-500)),75), [85,45,255], 40)
                     cv2.putText(img_img2, pose_name, ((width - (width-50)),85), 0, 1, [225, 255, 255], thickness=2, lineType=cv2.LINE_AA)
 
-                elif pose_name == "Drop-Shot":
+                elif pose_name == "throw":
                     cv2.line(img_img2, ((width - (width-50)),25), ((width - (width-200)),25), [85,45,255], 40)
                     cv2.putText(img_img2, "Shot Type", ((width - (width-50)),35), 0, 1, [225, 255, 255], thickness=2, lineType=cv2.LINE_AA)
                     cv2.line(img_img2, ((width - (width-50)),75), ((width - (width-500)),75), [85,45,255], 40)
@@ -256,7 +256,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
 
 
                 if webcam:
-                    cv2.imshow("Detection", img_img2)
+                   # cv2.imshow("Detection", img_img2)
                     key = cv2.waitKey(1)
                     if key == ord('c'):
                         break
@@ -264,7 +264,7 @@ def run(poseweights='yolov7-w6-pose.pt', source='pose.mp4', device='cpu', names 
                     img_ = img.copy()
                     img_ = cv2.resize(
                         img_, (960, 540), interpolation=cv2.INTER_LINEAR)
-                    cv2.imshow("Detection", img_img2)
+                  #  cv2.imshow("Detection", img_img2)
                     cv2.waitKey(1)
 
                 end_time = time.time()
